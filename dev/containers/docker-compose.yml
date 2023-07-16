@@ -1,0 +1,45 @@
+# -- DEV DOCKER-COMPOSE --
+# -- DO NOT USE IN PRODUCTION! --
+
+version: "3"
+services:
+  db:
+    container_name: toggl-db
+    image: postgres:9-alpine
+    environment:
+      POSTGRES_DB: toggl
+      POSTGRES_PASSWORD: togglpassword
+      POSTGRES_USER: toggljs
+    logging:
+      driver: "none"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  adminer:
+    container_name: toggl-adminer
+    image: adminer:latest
+    logging:
+      driver: "none"
+    ports:
+      - "3001:8080"
+
+
+  toggl:
+    container_name: toggl-app
+    build:
+      context: ../..
+      dockerfile: dev/containers/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../..:/toggl
+      - /toggl/node_modules
+      - /toggl/.git
+
+
+volumes:
+  db-data:
